@@ -1,3 +1,4 @@
+import java.util.InputMismatchException;
 import java.util.Random;
 import java.util.Scanner;
 import java.io.FileWriter;
@@ -22,11 +23,19 @@ public class Main {
         System.out.println("=== GENERATOR BEZPIECZNYCH HASEŁ ===");
 
         while (program) {
-         //zabezpieczenie aby hasło miało odpowiednią długość
-            System.out.println("Ile znaków ma mieć hasło");
-            int haslo = sc.nextInt();
-            if (haslo < 3) {
-                System.out.println("Hasło musi mieć co najmniej 3 znaki!");
+            int haslo;
+           while (true) {//zabezpieczenie aby hasło miało odpowiednią długość
+               try {
+                   System.out.println("Ile znaków ma mieć hasło");
+                   haslo = sc.nextInt();
+                   break;
+               } catch (InputMismatchException e){
+                   System.out.println("Proszę podać liczbę całkowitą aby określić długość hasła!");
+                   sc.nextLine();
+               }
+           }
+            if (haslo < 4) {
+                System.out.println("Hasło musi mieć co najmniej 4 znaki!");
                 continue;
             }
             if (haslo > 50) {
@@ -62,21 +71,42 @@ public class Main {
 
             StringBuilder sklejoneHaslo = new StringBuilder();
 
+            if (czyMale) {
+                sklejoneHaslo.append(literyMale.charAt(random.nextInt(literyMale.length())));
+            }
+            if (czyDuze) {
+                sklejoneHaslo.append(literyDuze.charAt(random.nextInt(literyDuze.length())));
+            }
+            if (czyLiczby) {
+                sklejoneHaslo.append(liczby.charAt(random.nextInt(liczby.length())));
+            }
+            if (czyznaki) {
+                sklejoneHaslo.append(znaki.charAt(random.nextInt(znaki.length())));
+            }
+
             //Budowa hasła
-            for (int i = 0; i < haslo; i++) {
+            while (sklejoneHaslo.length() < haslo) {
 
                 sklejoneHaslo.append(znakiDoWyboru.charAt(random.nextInt(znakiDoWyboru.length())));
 
             }
+            for (int i = 0; i < sklejoneHaslo.length(); i++){
+                int j = random.nextInt(sklejoneHaslo.length());
+
+                char temp = sklejoneHaslo.charAt(i);
+                sklejoneHaslo.setCharAt(i, sklejoneHaslo.charAt(j));
+                sklejoneHaslo.setCharAt(j, temp);
+            }
+
 
             //wypisanie hasła
             System.out.println("Twoje wygenerowane hasło to: " + sklejoneHaslo);
 
             //Sprawdzanie siły hasła
-            if (sklejoneHaslo.length() <= 3) {
+            if (sklejoneHaslo.length() == 4) {
                 System.out.println("Hasło jest bardzo słabe");
             }
-            if (sklejoneHaslo.length() <= 8) {
+              else if (sklejoneHaslo.length() <= 8) {
                 System.out.println("Hasło jest słabe");
             } else if (czyMale && czyDuze && !czyznaki && !czyLiczby) {
                 System.out.println("Hasło jest średnie");
@@ -86,7 +116,7 @@ public class Main {
                 System.out.println("Hasło jest średnie");
             }
             try (FileWriter writer = new FileWriter("hasla.txt", true)){
-                writer.write("[" + java.time.LocalDateTime.now() +sklejoneHaslo + "]"+ "\n");
+                writer.write("[" + java.time.LocalDateTime.now() + " | " + sklejoneHaslo + "]"+ "\n");
             } catch (IOException e) {
                 System.out.println("Błąd zapisu do pliku: " + e.getMessage());
             }
@@ -123,7 +153,7 @@ public class Main {
         String odp = "";
         while (poprawnie) {
             System.out.println(tekst + " (tak/nie)");
-             odp = sc.next();
+            odp = sc.next();
             if (odp.equalsIgnoreCase("Tak")) {
                 poprawnie = false;
             }
@@ -133,11 +163,11 @@ public class Main {
             else {
                 System.out.println("Wprowadzona opcja jest inna niż (Tak/Nie) spróbuj ponownie");
             }
-            
+
         }
         return odp.equalsIgnoreCase("Tak");
     }
-    
+
 }
 
 
